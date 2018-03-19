@@ -1,4 +1,4 @@
-package br.edu.ifrs.restinga.ds.jezer.exemploJPA;
+package br.edu.ifrs.restinga.ds.jezer.springRest;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

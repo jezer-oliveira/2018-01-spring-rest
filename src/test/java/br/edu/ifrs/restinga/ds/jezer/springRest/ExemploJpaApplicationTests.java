@@ -1,4 +1,4 @@
-package br.edu.ifrs.restinga.ds.jezer.exemploJPA;
+package br.edu.ifrs.restinga.ds.jezer.springRest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

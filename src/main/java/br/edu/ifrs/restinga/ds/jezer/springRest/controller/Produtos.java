@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.edu.ifrs.restinga.ds.jezer.exemploJPA.controller;
+package br.edu.ifrs.restinga.ds.jezer.springRest.controller;
 
-import br.edu.ifrs.restinga.ds.jezer.exemploJPA.dao.ProdutoDAO;
-import br.edu.ifrs.restinga.ds.jezer.exemploJPA.modelo.Produto;
+import br.edu.ifrs.restinga.ds.jezer.springRest.dao.ProdutoDAO;
+import br.edu.ifrs.restinga.ds.jezer.springRest.modelo.Produto;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.edu.ifrs.restinga.ds.jezer.exemploJPA.dao;
+package br.edu.ifrs.restinga.ds.jezer.springRest.dao;
 
-import br.edu.ifrs.restinga.ds.jezer.exemploJPA.modelo.Produto;
+import br.edu.ifrs.restinga.ds.jezer.springRest.modelo.Produto;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
