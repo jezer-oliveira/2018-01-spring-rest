@@ -10,6 +10,7 @@ import br.edu.ifrs.restinga.ds.jezer.springRest.modelo.Produto;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,8 +35,26 @@ public class Produtos {
     public  Optional<Produto> recuperar(@PathVariable int id)  {
         Optional<Produto> findById = produtoDAO.findById(id);
         return  findById;
-        
+    }
+    
+    @RequestMapping(path="/produtos/",method = RequestMethod.POST)
+    public Produto inserir(@RequestBody Produto produto) {
+        produto.setId(0);
+        Produto produtoComId = produtoDAO.save(produto);
+        return produtoComId;
+    }
+    
+    @RequestMapping(path="/produtos/{id}",method = RequestMethod.PUT)
+    public void atualizar(@PathVariable int id, @RequestBody Produto produto) {
+        produto.setId(id);
+        produtoDAO.save(produto);
+    }
+    
+    @RequestMapping(path = "/produtos/{id}", method = RequestMethod.DELETE)
+    public void apagar(@PathVariable int id) {
+        produtoDAO.deleteById(id);
     
     }
+    
     
 }
