@@ -5,10 +5,14 @@
  */
 package br.edu.ifrs.restinga.ds.jezer.springRest.modelo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  *
@@ -21,6 +25,11 @@ public class Produto {
     private int id;
     private String nome;
     private float valor;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd") 
+    @Temporal(TemporalType.DATE)
+    private Date validade;
+
 
     public int getId() {
         return id;
@@ -45,8 +54,16 @@ public class Produto {
     public void setValor(float valor) {
         this.valor = valor;
     }
+
+    public Date getValidade() {
+        return validade;
+    }
+
+    public void setValidade(Date validade) {
+        this.validade = validade;
+    }
     
-    
+  
     
     
     
