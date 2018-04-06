@@ -9,10 +9,8 @@ import br.edu.ifrs.restinga.ds.jezer.springRest.dao.ProdutoDAO;
 import br.edu.ifrs.restinga.ds.jezer.springRest.erros.NaoEncontrado;
 import br.edu.ifrs.restinga.ds.jezer.springRest.erros.RequisicaoInvalida;
 import br.edu.ifrs.restinga.ds.jezer.springRest.modelo.Produto;
-import java.util.Date;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,31 +31,20 @@ public class Produtos {
     @Autowired
     ProdutoDAO produtoDAO;
 
-    @RequestMapping(path = "/produtos/", method = RequestMethod.GET)
+    @RequestMapping(path="/produtos/pesquisar/nome", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    public Iterable<Produto> listar() {
-        return produtoDAO.findAll();
-
-    }
-
-    @RequestMapping(path = "/produtos/pesquisar/nome", method = RequestMethod.GET)
-    public Iterable<Produto> pesquisaPorNome(
-            @RequestParam(required = false) String igual,
+    public Iterable<Produto> pesquisarNome(
+            @RequestParam(required = false) String igual, 
             @RequestParam(required = false) String contem) {
-        if (igual != null) {
+        if(igual!=null&&!igual.isEmpty()) {
             return produtoDAO.findByNome(igual);
         } else {
             return produtoDAO.findByNomeContaining(contem);
+        
         }
     }
-
-    @RequestMapping(path = "/produtos/pesquisar/validade", method = RequestMethod.GET)
-    public Iterable<Produto> pesquisaPorValidade(
-            @RequestParam @DateTimeFormat(pattern = "yyy-MM-dd") Date maior) {
-        return produtoDAO.findByValidadeGreaterThan(maior);
-
-    }
-
+        
+    
     @RequestMapping(path = "/produtos/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Produto> recuperar(@PathVariable int id) {
