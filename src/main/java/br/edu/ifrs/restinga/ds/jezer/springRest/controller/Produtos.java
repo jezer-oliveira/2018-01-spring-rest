@@ -28,22 +28,58 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class Produtos {
 
+    void link() {
+        link(50, 10);
+    
+    }
+    void link(int altura, int cor){
+    
+    }
+    
+    
+    
+    
     @Autowired
     ProdutoDAO produtoDAO;
 
-    @RequestMapping(path="/produtos/pesquisar/nome", method = RequestMethod.GET)
+    @RequestMapping(path = "/produtos/pesquisar/nome", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public Iterable<Produto> pesquisarNome(
-            @RequestParam(required = false) String igual, 
+            @RequestParam(required = false) String igual,
             @RequestParam(required = false) String contem) {
-        if(igual!=null&&!igual.isEmpty()) {
+        if (igual != null && !igual.isEmpty()) {
             return produtoDAO.findByNome(igual);
         } else {
             return produtoDAO.findByNomeContaining(contem);
-        
+
         }
     }
-        
+
+    @RequestMapping(path = "/produtos/pesquisar/valor", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    public Iterable<Produto> pesquisarValor(
+            @RequestParam(required = false) Float igual,
+            @RequestParam(required = false) Float intervaloInicial,
+            @RequestParam(required = false) Float intervaloFinal) {
+        if(igual!=null) {
+            return produtoDAO.findByValor(igual);
+        } else if(intervaloInicial!=null&&intervaloFinal!=null) {
+            System.out.println("Aqui: maior:"+intervaloInicial+" menor:"+intervaloFinal);
+            return produtoDAO.findByValorBetween(intervaloInicial, intervaloFinal);
+        } else if(intervaloInicial!=null) {
+            return produtoDAO.findByValorGreaterThanEqual(intervaloInicial);
+        } else if(intervaloFinal!=null){
+            return produtoDAO.findByValorLessThanEqual(intervaloFinal);
+        } else {
+            throw new RequisicaoInvalida("Erro: informar igual ou maior");
+        }
+    }
+
+    @RequestMapping(path = "/produtos/", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    public Iterable<Produto> listar() {
+        return produtoDAO.findAll();
+    }
     
     @RequestMapping(path = "/produtos/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)

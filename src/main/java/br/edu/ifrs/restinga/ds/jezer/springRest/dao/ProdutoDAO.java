@@ -17,4 +17,12 @@ import org.springframework.stereotype.Repository;
 public interface ProdutoDAO extends CrudRepository<Produto, Integer>{
     Iterable<Produto> findByNome(String nome); 
     Iterable<Produto> findByNomeContaining(String nome);
+    
+    Iterable<Produto> findByValor(float valor);
+    Iterable<Produto> findByValorGreaterThanEqual(float valor);
+    public Iterable<Produto> findByValorLessThanEqual(Float menor);
+
+    public Iterable<Produto> findByValorBetween(Float a1, Float a2);
+    public Iterable<Produto> findByValorLessThanEqualAndValorGreaterThanEqual(
+    Float menor, Float maior);
 }
