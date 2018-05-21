@@ -30,7 +30,7 @@ class ProdutoController {
     }
 
     editarItem(id) {
-        fetch(`produtos/${id}`, {
+        fetch(`api/produtos/${id}`, {
             method: "GET"
         }).then((resposta) => {
             if (resposta.ok) {
@@ -49,7 +49,7 @@ class ProdutoController {
     }
 
     apagar(id) {
-        fetch(`produtos/${id}`, {
+        fetch(`api/produtos/${id}`, {
             method: "DELETE"
         }
         ).then((resposta) => {
@@ -65,7 +65,7 @@ class ProdutoController {
 
     pesquisar() {
         let pesquisa = document.getElementById("pesquisar").value;
-        fetch(`/produtos/pesquisar/nome?contem=${pesquisa}`, {method: "GET"})
+        fetch(`/api/produtos/pesquisar/nome?contem=${pesquisa}`, {method: "GET"})
                 .then((resultado) => {
                     if (resultado.ok) {
                         // retorno ok
@@ -90,7 +90,7 @@ class ProdutoController {
     }
 
     listar() {
-        fetch("produtos/", {method: "GET"})
+        fetch("api/produtos/", {method: "GET"})
                 .then((resultado) => {
                     if (resultado.ok) {
                         // retorno ok
@@ -131,7 +131,7 @@ class ProdutoController {
     }
 
     editar(id, item) {
-        fetch(`produtos/${id}`, {
+        fetch(`api/produtos/${id}`, {
             method: "PUT",
             headers: new Headers({
                 'Content-Type': 'application/json'
@@ -152,7 +152,7 @@ class ProdutoController {
     }
 
     inserir(item) {
-        fetch("produtos/", {
+        fetch("api/produtos/", {
             method: "POST",
             headers: new Headers({
                 'Content-Type': 'application/json'

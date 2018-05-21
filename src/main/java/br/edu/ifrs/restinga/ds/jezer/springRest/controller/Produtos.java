@@ -26,17 +26,14 @@ import org.springframework.web.bind.annotation.RestController;
  * @author jezer
  */
 @RestController
+@RequestMapping("/api")
 public class Produtos {
-
-    void link() {
-        link(50, 10);
     
+    @RequestMapping(path = "/produtos/", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    public Iterable<Produto> listar() {
+        return produtoDAO.findAll();
     }
-    void link(int altura, int cor){
-    
-    }
-    
-    
     
     
     @Autowired
@@ -75,11 +72,6 @@ public class Produtos {
         }
     }
 
-    @RequestMapping(path = "/produtos/", method = RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
-    public Iterable<Produto> listar() {
-        return produtoDAO.findAll();
-    }
     
     @RequestMapping(path = "/produtos/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
