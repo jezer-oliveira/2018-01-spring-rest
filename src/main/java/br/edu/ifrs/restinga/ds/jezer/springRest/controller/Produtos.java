@@ -5,14 +5,17 @@
  */
 package br.edu.ifrs.restinga.ds.jezer.springRest.controller;
 
+import br.edu.ifrs.restinga.ds.jezer.springRest.dao.ModeloDAO;
 import br.edu.ifrs.restinga.ds.jezer.springRest.dao.ProdutoDAO;
 import br.edu.ifrs.restinga.ds.jezer.springRest.erros.NaoEncontrado;
 import br.edu.ifrs.restinga.ds.jezer.springRest.erros.RequisicaoInvalida;
+import br.edu.ifrs.restinga.ds.jezer.springRest.modelo.Marca;
+import br.edu.ifrs.restinga.ds.jezer.springRest.modelo.Modelo;
 import br.edu.ifrs.restinga.ds.jezer.springRest.modelo.Produto;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,6 +41,8 @@ public class Produtos {
     
     @Autowired
     ProdutoDAO produtoDAO;
+    @Autowired
+    ModeloDAO modeloDAO;
 
     @RequestMapping(path = "/produtos/pesquisar/nome", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
@@ -75,13 +80,13 @@ public class Produtos {
     
     @RequestMapping(path = "/produtos/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Produto> recuperar(@PathVariable int id) {
+    public Produto recuperar(@PathVariable int id) {
 
         Optional<Produto> findById = produtoDAO.findById(id);
         if (findById.isPresent()) {
-            return ResponseEntity.ok(findById.get());
+            return findById.get();
         } else {
-            return ResponseEntity.notFound().build();
+            throw  new NaoEncontrado("Não encontrado");
 
         }
     }
@@ -102,11 +107,17 @@ public class Produtos {
     @RequestMapping(path = "/produtos/{id}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void atualizar(@PathVariable int id, @RequestBody Produto produto) {
-        produto.setId(id);
         if (produto.getValor() <= 0) {
             throw new RequisicaoInvalida("Valor deve ser maior que 0");
         }
-        produtoDAO.save(produto);
+        Optional<Produto> optionalProdutoBanco = produtoDAO.findById(id);
+        if(!optionalProdutoBanco.isPresent())
+            throw new NaoEncontrado("ID não encontrada");
+        Produto produtoBanco = optionalProdutoBanco.get();
+        produtoBanco.setNome(produto.getNome());
+        produtoBanco.setValor(produto.getValor());
+        produtoBanco.setFornecedor(produto.getFornecedor());
+        produtoDAO.save(produtoBanco);
     }
 
     @RequestMapping(path = "/produtos/{id}", method = RequestMethod.DELETE)
@@ -121,4 +132,95 @@ public class Produtos {
 
     }
 
+    
+    @RequestMapping(path= "/produtos/{id}/marcas/", method = RequestMethod.GET)
+    public Iterable<Marca> recuperarMarcas(@PathVariable int id) {
+        return this.recuperar(id).getMarcas();
+    }
+
+    
+    @RequestMapping(path = "/produtos/{idProduto}/marcas/", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.CREATED)
+    public Iterable<Marca>  inseriMarca(@PathVariable int idProduto, @RequestBody Marca marca) {
+        Produto produto = this.recuperar(idProduto);
+        produto.getMarcas().add(marca);
+        produtoDAO.save(produto);
+        return produto.getMarcas();
+    }
+    
+    @RequestMapping(path= "/produtos/{idProduto}/marcas/{id}", method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.OK)
+    public void apagarMarca(@PathVariable int idProduto, @PathVariable int id) {
+        Marca marcaAchada=null;
+        Produto produto = this.recuperar(idProduto);
+        List<Marca> marcas = produto.getMarcas();
+        for (Marca marcaLista : marcas) {
+            if(id==marcaLista.getId())
+                marcaAchada=marcaLista;
+        }
+        if(marcaAchada!=null) {
+            produto.getMarcas().remove(marcaAchada);
+            produtoDAO.save(produto);
+        } else 
+            throw new NaoEncontrado("Não encontrado");
+    }
+    
+    
+    @RequestMapping(path = "/produtos/{idProduto}/modelos/", method = RequestMethod.GET)
+    public Iterable<Modelo> listarModelo(@PathVariable int idProduto) {
+        return this.recuperar(idProduto).getModelos();
+    }
+
+    
+    @RequestMapping(path = "/produtos/{idProduto}/modelos/", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.CREATED)
+    public Modelo inserirModelo(@PathVariable int idProduto, @RequestBody Modelo modelo) {
+        modelo.setId(0);
+        Modelo modeloSalvo = modeloDAO.save(modelo);
+        Produto produto = this.recuperar(idProduto);
+        produto.getModelos().add(modeloSalvo);
+        produtoDAO.save(produto);
+        return modeloSalvo;
+    }
+
+    @RequestMapping(path = "/produtos/{idProduto}/modelos/{id}", method = RequestMethod.GET)
+    public Modelo recuperarModelo(@PathVariable int idProduto, @PathVariable int id) {
+        Optional<Modelo> findById = modeloDAO.findById(id);
+        if(findById.isPresent())
+            return findById.get();
+        else 
+            throw new NaoEncontrado("Não encontrado");
+    }
+    
+    @RequestMapping(path = "/produtos/{idProduto}/modelos/{id}", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public void atualizarModelo(@PathVariable int idProduto, @PathVariable int id, @RequestBody Modelo modelo){
+        if(modeloDAO.existsById(id)){
+            modelo.setId(id);
+            modeloDAO.save(modelo);
+        } else 
+            throw new NaoEncontrado("Não encontrado");
+    
+    }
+    
+    @RequestMapping(path= "/produtos/{idProduto}/modelos/{id}", method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.OK)
+    public void apagarModelo(@PathVariable int idProduto, @PathVariable int id) {
+        
+        Modelo modeloAchada=null;
+        Produto produto = this.recuperar(idProduto);
+        List<Modelo> modelos = produto.getModelos();
+        for (Modelo modeloLista : modelos) {
+            if(id==modeloLista.getId())
+                modeloAchada=modeloLista;
+        }
+        if(modeloAchada!=null) {
+            produto.getModelos().remove(modeloAchada);
+            produtoDAO.save(produto);
+        } else 
+            throw new NaoEncontrado("Não encontrado");
+    }
+
+
+    
 }
