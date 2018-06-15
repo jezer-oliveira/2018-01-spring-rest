@@ -24,15 +24,18 @@ import org.springframework.stereotype.Component;
 @Component
 @EnableWebSecurity(debug = true)
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
-public class ConfiguracaoSeguranca extends WebSecurityConfigurerAdapter{
+public class ConfiguracaoSeguranca extends WebSecurityConfigurerAdapter {
+
     @Autowired
     MeuUserDetailsService detailsService;
+
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) 
+    protected void configure(AuthenticationManagerBuilder auth)
             throws Exception {
         auth.userDetailsService(detailsService)
                 .passwordEncoder(Usuarios.PASSWORD_ENCODER);
     }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
@@ -47,5 +50,3 @@ public class ConfiguracaoSeguranca extends WebSecurityConfigurerAdapter{
                 .and().csrf().disable();
     }
 }
-
-
