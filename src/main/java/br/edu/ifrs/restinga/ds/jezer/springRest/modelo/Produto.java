@@ -27,7 +27,19 @@ import javax.persistence.TemporalType;
  */
 @Entity
 public class Produto {
+ 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    private String nome;
+    private float valor;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd") 
+    @Temporal(TemporalType.DATE)
+    private Date validade;
 
+
+    
     @ManyToOne
     private Fornecedor fornecedor;
     
@@ -40,18 +52,6 @@ public class Produto {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToMany
     private List<Marca> marcas;
-
-    
-        @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private String nome;
-    private float valor;
-    
-    @JsonFormat(pattern = "yyyy-MM-dd") 
-    @Temporal(TemporalType.DATE)
-    private Date validade;
-
     
     
     public int getId() {

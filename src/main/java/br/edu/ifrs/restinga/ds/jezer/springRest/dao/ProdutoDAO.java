@@ -6,7 +6,7 @@
 package br.edu.ifrs.restinga.ds.jezer.springRest.dao;
 
 import br.edu.ifrs.restinga.ds.jezer.springRest.modelo.Produto;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
  * @author jezer
  */
 @Repository
-public interface ProdutoDAO extends CrudRepository<Produto, Integer>{
+public interface ProdutoDAO extends PagingAndSortingRepository<Produto, Integer>{
     Iterable<Produto> findByNome(String nome); 
     Iterable<Produto> findByNomeContaining(String nome);
     

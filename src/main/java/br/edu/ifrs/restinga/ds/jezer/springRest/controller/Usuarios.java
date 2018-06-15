@@ -1,0 +1,120 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package br.edu.ifrs.restinga.ds.jezer.springRest.controller;
+
+import br.edu.ifrs.restinga.ds.jezer.springRest.aut.MeuUser;
+import br.edu.ifrs.restinga.ds.jezer.springRest.dao.UsuarioDAO;
+import br.edu.ifrs.restinga.ds.jezer.springRest.erros.NaoEncontrado;
+import br.edu.ifrs.restinga.ds.jezer.springRest.erros.Proibido;
+import br.edu.ifrs.restinga.ds.jezer.springRest.modelo.Usuario;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ *
+ * @author jezer
+ */
+@RestController
+@RequestMapping(path = "/api")
+public class Usuarios {
+
+    static class MyBCryptPasswordEncoder extends BCryptPasswordEncoder {
+
+        @Override
+        public boolean matches(CharSequence rawPassword, String encodedPassword) {
+            boolean matches = super.matches(rawPassword, encodedPassword); 
+            System.out.println("Teste "+rawPassword+" "+matches);
+            return matches; 
+            
+        }
+        
+    }
+    
+    public static final PasswordEncoder PASSWORD_ENCODER = new MyBCryptPasswordEncoder();
+
+    @RequestMapping(path = "/usuarios", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.CREATED)
+    public Usuario inserir(@AuthenticationPrincipal MeuUser usuarioAut, @RequestBody Usuario usuario) {
+        usuario.setId(0);
+        usuario.setSenha(PASSWORD_ENCODER.encode(usuario.getNovaSenha()));
+
+        if (usuarioAut == null || !usuarioAut.getUsuario().getPermissoes().contains("administrador")) {
+            ArrayList<String> permissao = new ArrayList<String>();
+            permissao.add("usuario");
+            usuario.setPermissoes(permissao);
+        }
+        Usuario usuarioSalvo = usuarioDAO.save(usuario);
+        return usuarioSalvo;
+    }
+
+    @Autowired
+    UsuarioDAO usuarioDAO;
+
+@PreAuthorize("hasAuthority('administrador')")
+@RequestMapping(path = "/usuarios", method = RequestMethod.GET)
+public Iterable<Usuario> listar() {
+    return usuarioDAO.findAll();
+}
+
+@RequestMapping(path = "/usuarios/{id}", method = RequestMethod.GET)
+public Usuario recuperar(@AuthenticationPrincipal MeuUser usuarioAut, 
+        @PathVariable int id) {
+    if (usuarioAut.getUsuario().getId() == id
+        || usuarioAut.getUsuario().getPermissoes().contains("administrador")) {
+        return usuarioDAO.findById(id).get();
+    } else {
+        throw new Proibido("Não é permitido acessar dados de outro usuários");
+    }
+}
+
+    @RequestMapping(path = "/usuarios/{id}", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public void atualizar(@PathVariable int id, @RequestBody Usuario usuario) {
+        if (usuarioDAO.existsById(id)) {
+            usuario.setId(id);
+            usuarioDAO.save(usuario);
+        }
+    }
+
+    @RequestMapping(path = "/usuarios/{id}", method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.OK)
+    public void apagar(@PathVariable int id) {
+        if (usuarioDAO.existsById(id)) {
+            usuarioDAO.deleteById(id);
+        }
+
+    }
+
+    @RequestMapping(path = "/usuarios/login/", method = RequestMethod.GET)
+    public Usuario login(@RequestParam String usuario, @RequestParam String senha) {
+        Usuario usuarioBanco = usuarioDAO.findByLogin(usuario);
+        if(usuarioBanco!=null) {
+        boolean matches = PASSWORD_ENCODER.matches(senha, usuarioBanco.getSenha());
+        if(matches) {
+            return usuarioBanco;
+        }
+        }
+        throw  new NaoEncontrado("Usuário e/ou senha incorreto(s)");
+        //return usuarioAut.getUsuario();
+    
+    }
+    
+}

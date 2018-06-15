@@ -43,6 +43,31 @@ public class Pessoas {
 
     @RequestMapping(path = "/pessoas/{id}", method = RequestMethod.GET)
     public Pessoa recuperar(@PathVariable int id) {
+        /*
+        ArrayList<Pessoa> pessoas= new ArrayList();
+        Pessoa pessoa;
+        PessoaFisica pessoaFisica;
+        PessoaJuridica pessoaJuridica;
+        
+        pessoaFisica = new PessoaFisica();
+        pessoaJuridica = new PessoaJuridica();
+        pessoa = new PessoaFisica();
+        
+        pessoas.add(pessoaFisica);
+        pessoas.add(pessoaJuridica);
+        
+        for (Pessoa pessoaItem : pessoas) {
+            pessoaItem.getNome();
+            if(pessoaItem instanceof PessoaFisica) {
+                pessoaFisica= (PessoaFisica) pessoaItem;
+                pessoaFisica.getCpf();
+            
+            }
+                
+        }
+                */
+        
+        
         return pessoaDAO.findById(id).get();
     }
     

@@ -133,24 +133,29 @@ public class Produtos {
     }
 
     
-    @RequestMapping(path= "/produtos/{id}/marcas/", method = RequestMethod.GET)
+    @RequestMapping(path= "/produtos/{id}/marcas/", 
+            method = RequestMethod.GET)
     public Iterable<Marca> recuperarMarcas(@PathVariable int id) {
         return this.recuperar(id).getMarcas();
     }
 
     
-    @RequestMapping(path = "/produtos/{idProduto}/marcas/", method = RequestMethod.POST)
+    @RequestMapping(path = "/produtos/{idProduto}/marcas/", 
+            method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public Iterable<Marca>  inseriMarca(@PathVariable int idProduto, @RequestBody Marca marca) {
+    public Iterable<Marca>  inseriMarca(@PathVariable int idProduto, 
+            @RequestBody Marca marca) {
         Produto produto = this.recuperar(idProduto);
         produto.getMarcas().add(marca);
         produtoDAO.save(produto);
         return produto.getMarcas();
     }
     
-    @RequestMapping(path= "/produtos/{idProduto}/marcas/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(path= "/produtos/{idProduto}/marcas/{id}", 
+            method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
-    public void apagarMarca(@PathVariable int idProduto, @PathVariable int id) {
+    public void apagarMarca(@PathVariable int idProduto, 
+            @PathVariable int id) {
         Marca marcaAchada=null;
         Produto produto = this.recuperar(idProduto);
         List<Marca> marcas = produto.getMarcas();
@@ -166,15 +171,18 @@ public class Produtos {
     }
     
     
-    @RequestMapping(path = "/produtos/{idProduto}/modelos/", method = RequestMethod.GET)
+    @RequestMapping(path = "/produtos/{idProduto}/modelos/", 
+            method = RequestMethod.GET)
     public Iterable<Modelo> listarModelo(@PathVariable int idProduto) {
         return this.recuperar(idProduto).getModelos();
     }
 
     
-    @RequestMapping(path = "/produtos/{idProduto}/modelos/", method = RequestMethod.POST)
+    @RequestMapping(path = "/produtos/{idProduto}/modelos/", 
+            method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public Modelo inserirModelo(@PathVariable int idProduto, @RequestBody Modelo modelo) {
+    public Modelo inserirModelo(@PathVariable int idProduto, 
+            @RequestBody Modelo modelo) {
         modelo.setId(0);
         Modelo modeloSalvo = modeloDAO.save(modelo);
         Produto produto = this.recuperar(idProduto);
@@ -192,7 +200,8 @@ public class Produtos {
             throw new NaoEncontrado("Não encontrado");
     }
     
-    @RequestMapping(path = "/produtos/{idProduto}/modelos/{id}", method = RequestMethod.PUT)
+    @RequestMapping(path = "/produtos/{idProduto}/modelos/{id}", 
+            method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
     public void atualizarModelo(@PathVariable int idProduto, @PathVariable int id, @RequestBody Modelo modelo){
         if(modeloDAO.existsById(id)){
@@ -205,7 +214,8 @@ public class Produtos {
     
     @RequestMapping(path= "/produtos/{idProduto}/modelos/{id}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
-    public void apagarModelo(@PathVariable int idProduto, @PathVariable int id) {
+    public void apagarModelo(@PathVariable int idProduto, 
+            @PathVariable int id) {
         
         Modelo modeloAchada=null;
         Produto produto = this.recuperar(idProduto);
