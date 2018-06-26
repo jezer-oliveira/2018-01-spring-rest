@@ -5,8 +5,10 @@
  */
 package br.edu.ifrs.restinga.ds.jezer.springRest;
 
+import br.edu.ifrs.restinga.ds.jezer.springRest.aut.FiltroPorToken;
 import br.edu.ifrs.restinga.ds.jezer.springRest.aut.MeuUserDetailsService;
 import br.edu.ifrs.restinga.ds.jezer.springRest.controller.Usuarios;
+import br.edu.ifrs.restinga.ds.jezer.springRest.dao.UsuarioDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -15,6 +17,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.stereotype.Component;
 
 /**
@@ -22,12 +25,15 @@ import org.springframework.stereotype.Component;
  * @author jezer
  */
 @Component
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class ConfiguracaoSeguranca extends WebSecurityConfigurerAdapter {
 
     @Autowired
     MeuUserDetailsService detailsService;
+    
+    @Autowired
+    UsuarioDAO usuarioDAO;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth)
@@ -45,7 +51,11 @@ public class ConfiguracaoSeguranca extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/usuarios/").permitAll()
                 // permite o acesso somente se autenticado
                 .antMatchers("/api/**").authenticated()
-                .and().httpBasic().and().sessionManagement()
+                .and().httpBasic()
+                 .and().
+                addFilterBefore(new  FiltroPorToken(usuarioDAO)
+                        , BasicAuthenticationFilter.class)
+                .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().csrf().disable();
     }

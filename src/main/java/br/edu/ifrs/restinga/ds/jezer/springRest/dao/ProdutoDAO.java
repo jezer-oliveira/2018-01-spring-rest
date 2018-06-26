@@ -6,6 +6,8 @@
 package br.edu.ifrs.restinga.ds.jezer.springRest.dao;
 
 import br.edu.ifrs.restinga.ds.jezer.springRest.modelo.Produto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,8 +16,13 @@ import org.springframework.stereotype.Repository;
  * @author jezer
  */
 @Repository
-public interface ProdutoDAO extends PagingAndSortingRepository<Produto, Integer>{
+public interface ProdutoDAO 
+        extends PagingAndSortingRepository<Produto, Integer>{
+    
+    Page<Produto> findByNome(String nome, Pageable pageable); 
     Iterable<Produto> findByNome(String nome); 
+    
+    Page<Produto> findByNomeContaining(String nome, Pageable pageable);
     Iterable<Produto> findByNomeContaining(String nome);
     
     Iterable<Produto> findByValor(float valor);

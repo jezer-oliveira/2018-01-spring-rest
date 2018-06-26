@@ -10,8 +10,12 @@ import br.edu.ifrs.restinga.ds.jezer.springRest.dao.UsuarioDAO;
 import br.edu.ifrs.restinga.ds.jezer.springRest.erros.NaoEncontrado;
 import br.edu.ifrs.restinga.ds.jezer.springRest.erros.Proibido;
 import br.edu.ifrs.restinga.ds.jezer.springRest.modelo.Usuario;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,21 +39,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(path = "/api")
 public class Usuarios {
+    
+    public static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
-    static class MyBCryptPasswordEncoder extends BCryptPasswordEncoder {
-
-        @Override
-        public boolean matches(CharSequence rawPassword, String encodedPassword) {
-            boolean matches = super.matches(rawPassword, encodedPassword); 
-            System.out.println("Teste "+rawPassword+" "+matches);
-            return matches; 
-            
-        }
-        
+    public Usuario inserirOld(@RequestBody Usuario usuario) {
+        usuario.setId(0);
+        usuario.setSenha(PASSWORD_ENCODER.encode(usuario.getNovaSenha()));
+        ArrayList<String> permissao = new ArrayList<>();
+        permissao.add("usuario");
+        usuario.setPermissoes(permissao);
+        Usuario usuarioSalvo = usuarioDAO.save(usuario);
+        return usuarioSalvo;
     }
     
-    public static final PasswordEncoder PASSWORD_ENCODER = new MyBCryptPasswordEncoder();
-
     @RequestMapping(path = "/usuarios", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public Usuario inserir(@AuthenticationPrincipal MeuUser usuarioAut, @RequestBody Usuario usuario) {
@@ -103,18 +105,46 @@ public Usuario recuperar(@AuthenticationPrincipal MeuUser usuarioAut,
 
     }
 
-    @RequestMapping(path = "/usuarios/login/", method = RequestMethod.GET)
-    public Usuario login(@RequestParam String usuario, @RequestParam String senha) {
+    @RequestMapping(path = "/usuarios/loginOld/", method = RequestMethod.GET)
+    public Usuario login(@RequestParam String usuario, 
+            @RequestParam String senha) {
         Usuario usuarioBanco = usuarioDAO.findByLogin(usuario);
         if(usuarioBanco!=null) {
-        boolean matches = PASSWORD_ENCODER.matches(senha, usuarioBanco.getSenha());
+        boolean matches = 
+                PASSWORD_ENCODER.matches(senha, usuarioBanco.getSenha());
         if(matches) {
             return usuarioBanco;
         }
         }
         throw  new NaoEncontrado("Usuário e/ou senha incorreto(s)");
+    }
+
+    public static final String SEGREDO= 
+        "string grande para c*, usada como chave para assinatura! Queijo!";
+    @RequestMapping(path = "/usuarios/login/", method = RequestMethod.GET)
+    public ResponseEntity<Usuario> loginToken(@RequestParam String usuario,
+            @RequestParam String senha) throws UnsupportedEncodingException {
+        Usuario usuarioBanco = usuarioDAO.findByLogin(usuario);
+        if (usuarioBanco != null) {
+            boolean achou = 
+                    PASSWORD_ENCODER.matches(senha, usuarioBanco.getSenha());
+            if (achou) {
+                Algorithm algorithm = Algorithm.HMAC256(SEGREDO);
+                Calendar agora = Calendar.getInstance();
+                agora.add(Calendar.MINUTE, 4);
+                Date expira = agora.getTime();
+                String token = JWT.create()
+                        .withClaim("id", usuarioBanco.getId()).
+                        withExpiresAt(expira).
+                        sign(algorithm);
+                HttpHeaders respHeaders = new HttpHeaders();
+                respHeaders.set("token", token);
+                return new ResponseEntity<>(usuarioBanco, 
+                        respHeaders, HttpStatus.OK);
+            }
+        }
+        throw new NaoEncontrado("Usuário e/ou senha incorreto(s)");
         //return usuarioAut.getUsuario();
-    
     }
     
 }

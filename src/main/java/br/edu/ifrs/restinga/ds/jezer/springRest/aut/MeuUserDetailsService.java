@@ -23,12 +23,9 @@ public class MeuUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String login) 
             throws UsernameNotFoundException {
         Usuario usuario = usuarioDAO.findByLogin(login);
-        System.out.println("br.edu.ifrs.restinga.ds.jezer.springRest.aut.MeuUserDetailsService.loadUserByUsername()");
-        System.out.println("aqui:"+login);
         if (usuario == null) {
             throw new UsernameNotFoundException(login + " não existe!");
         }
-        System.out.println("user:"+usuario.getNome());
         try {
         MeuUser meuUser = new MeuUser(usuario);    
         return meuUser;

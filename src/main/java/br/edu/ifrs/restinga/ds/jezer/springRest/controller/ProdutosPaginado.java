@@ -15,6 +15,8 @@ import br.edu.ifrs.restinga.ds.jezer.springRest.modelo.Produto;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,18 +31,25 @@ import org.springframework.web.bind.annotation.RestController;
  * @author jezer
  */
 @RestController
-@RequestMapping("/apiOld")
-public class Produtos {
+@RequestMapping("/api")
+public class ProdutosPaginado {
+    @Autowired
+    ProdutoDAO produtoDAO;
     
     @RequestMapping(path = "/produtos/", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    public Iterable<Produto> listar() {
-        return produtoDAO.findAll();
+    public Iterable<Produto> listar(
+            @RequestParam int pagina, 
+            @RequestParam int tamanho,
+            @RequestParam(required = false, defaultValue = "id") String ordem,
+            @RequestParam(required = false, defaultValue = "ASC") String direcao
+            ) {
+        
+        return produtoDAO.findAll(PageRequest.of(pagina, 
+                tamanho,Sort.Direction.valueOf(direcao), ordem));
     }
     
     
-    @Autowired
-    ProdutoDAO produtoDAO;
     @Autowired
     ModeloDAO modeloDAO;
 
@@ -48,11 +57,20 @@ public class Produtos {
     @ResponseStatus(HttpStatus.OK)
     public Iterable<Produto> pesquisarNome(
             @RequestParam(required = false) String igual,
-            @RequestParam(required = false) String contem) {
+            @RequestParam(required = false) String contem,
+            @RequestParam int pagina, 
+            @RequestParam int tamanho,
+            @RequestParam(required = false, defaultValue = "id") String ordem,
+            @RequestParam(required = false, defaultValue = "ASC") String direcao
+
+            
+            ) {
         if (igual != null && !igual.isEmpty()) {
-            return produtoDAO.findByNome(igual);
+            return produtoDAO.findByNome(igual,
+                    PageRequest.of(pagina, tamanho,Sort.Direction.valueOf(direcao), ordem));
         } else {
-            return produtoDAO.findByNomeContaining(contem);
+            return produtoDAO.findByNomeContaining(contem,
+                    PageRequest.of(pagina, tamanho,Sort.Direction.valueOf(direcao), ordem));
 
         }
     }
